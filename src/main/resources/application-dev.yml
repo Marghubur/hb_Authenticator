@@ -20,10 +20,10 @@ spring:
       client:
         registration:
           google:
-            client-id: 622966386962-it5k2ko2s8h1l07cs3ls4n19492ej7eo.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 622966386962-pcep2a9p2l0j75p1nrl5m7clhlln3eil.apps.googleusercontent.com
+            client-secret: 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
             scope: email,profile
-            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            redirect-uri: http://localhost:4200
 
 eureka:
   client:

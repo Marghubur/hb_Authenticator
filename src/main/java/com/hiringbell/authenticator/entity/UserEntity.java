@@ -2,10 +2,7 @@ package com.hiringbell.authenticator.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -62,4 +59,8 @@ public class UserEntity {
     @JsonProperty("UpdatedOn")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     Date updatedOn;
+
+    @Transient
+    @JsonProperty("Token")
+    String token;
 }
