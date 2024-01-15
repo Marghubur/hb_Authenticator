@@ -149,13 +149,13 @@ public class LoginService implements ILoginService {
             case 1:
                 jwtTokenModel.setRole(ApplicationConstant.Admin);
                 break;
-            case 2:
-                jwtTokenModel.setRole(ApplicationConstant.Employee);
-                break;
             case 3:
                 jwtTokenModel.setRole(ApplicationConstant.Client);
                 break;
+            default:
+                jwtTokenModel.setRole(ApplicationConstant.Employee);
         }
+
         JwtGateway jwtGateway = JwtGateway.getJwtGateway();
         String result = jwtGateway.generateJwtToken(jwtTokenModel);
 
