@@ -1,7 +1,9 @@
 package com.hiringbell.authenticator.controller;
 
 import com.hiringbell.authenticator.contract.ILoginService;
+import com.hiringbell.authenticator.entity.Login;
 import com.hiringbell.authenticator.entity.UserEntity;
+import com.hiringbell.authenticator.model.ApiResponse;
 import com.hiringbell.authenticator.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +22,14 @@ public class LoginController {
     ILoginService loginService;
 
     @PostMapping("/googlelogin")
-    public ResponseEntity<UserEntity> registerWithGoogle(@RequestBody UserEntity user) {
-        UserEntity userEntity = loginService.userAuthetication(user);
-        return ResponseEntity.ok(userEntity);
+    public ResponseEntity<ApiResponse> registerWithGoogle(@RequestBody UserEntity user) throws Exception {
+        var result = loginService.userAuthetication(user);
+        return ResponseEntity.ok(ApiResponse.Ok(result));
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<ApiResponse> authenticate(@RequestBody Login login) throws Exception {
+        var result = loginService.authenticateUserService(login);
+        return ResponseEntity.ok(ApiResponse.Ok(result));
     }
 }
