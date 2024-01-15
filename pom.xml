@@ -153,5 +153,6 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>hiringbell_authservice</finalName>
     </build>
 </project>
