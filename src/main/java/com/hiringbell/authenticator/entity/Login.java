@@ -2,10 +2,7 @@ package com.hiringbell.authenticator.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
@@ -19,9 +16,9 @@ public class Login {
     @JsonProperty("LoginId")
     Long loginId;
 
-    @Column(name = "EmployeeId")
-    @JsonProperty("EmployeeId")
-    Long employeeId;
+    @Column(name = "UserId")
+    @JsonProperty("UserId")
+    Long userId;
 
     @Column(name = "Email")
     @JsonProperty("Email")
@@ -61,4 +58,13 @@ public class Login {
     @JsonProperty("UpdatedOn")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     Date updatedOn;
+
+    @Transient
+    @JsonProperty("Token")
+    String token;
+
+    @Transient
+    @JsonProperty("TokenExpiryDuration")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    Date tokenExpiryDuration;
 }

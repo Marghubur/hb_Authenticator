@@ -1,7 +1,7 @@
 package com.hiringbell.authenticator.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hiringbell.authenticator.entity.UserEntity;
+import com.hiringbell.authenticator.entity.Login;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginResponse {
     @JsonProperty("UserDetail")
-    UserEntity userDetail;
+    Login userDetail;
 }

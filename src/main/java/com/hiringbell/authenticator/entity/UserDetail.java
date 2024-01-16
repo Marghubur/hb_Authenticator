@@ -16,12 +16,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="employee_detail")
-public class EmployeeDetail {
+@Table(name="user_detail")
+public class UserDetail {
 
     @Id
-    @Column(name = "EmployeeId")
-    long employeeId;
+    @Column(name = "UserId")
+    long userId;
 
     @Column(name = "PAN")
     String pan;

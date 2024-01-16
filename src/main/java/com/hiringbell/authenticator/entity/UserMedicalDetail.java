@@ -16,15 +16,15 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="employee_medical_detail")
-public class EmployeeMedicalDetail {
+@Table(name="user_medical_detail")
+public class UserMedicalDetail {
 
     @Id
-    @Column(name = "EmployeeMedicalDetailId")
-    long employeeMedicalDetailId;
+    @Column(name = "UserMedicalDetailId")
+    long userMedicalDetailId;
 
-    @Column(name = "EmployeeId")
-    long employeeId;
+    @Column(name = "UserId")
+    long userId;
 
     @Column(name = "MedicalConsultancyId")
     long medicalConsultancyId;
