@@ -12,4 +12,7 @@ import lombok.NoArgsConstructor;
 public class LoginResponse {
     @JsonProperty("UserDetail")
     Login userDetail;
+
+    @JsonProperty("IsNewUser")
+    boolean isNewUser;
 }

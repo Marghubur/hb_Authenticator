@@ -174,6 +174,7 @@ public class LoginService implements ILoginService {
         userDetail.setMobile(loginDetail.getMobile());
         userDetail.setRoleId(loginDetail.getRoleId());
         loginResponse.setUserDetail(userDetail);
+        loginResponse.setNewUser(true);
         return loginResponse;
     }
 
