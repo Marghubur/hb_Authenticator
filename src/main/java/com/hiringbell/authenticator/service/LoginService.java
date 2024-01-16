@@ -7,7 +7,10 @@ import com.hiringbell.authenticator.jwtconfig.JwtGateway;
 import com.hiringbell.authenticator.model.ApplicationConstant;
 import com.hiringbell.authenticator.model.JwtTokenModel;
 import com.hiringbell.authenticator.model.LoginResponse;
-import com.hiringbell.authenticator.repository.*;
+import com.hiringbell.authenticator.repository.UserDetailRepository;
+import com.hiringbell.authenticator.repository.UserMedicalDetailRepository;
+import com.hiringbell.authenticator.repository.UserRepository;
+import com.hiringbell.authenticator.repository.LoginRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,15 +30,15 @@ public class LoginService implements ILoginService {
     LoginRepository loginRepository;
 
     @Autowired
-    EmployeeRepository employeeRepository;
+    UserRepository userRepository;
 
     @Autowired
-    EmployeeDetailRepository employeeDetailRepository;
+    UserDetailRepository userDetailRepository;
 
     @Autowired
-    EmployeeMedicalDetailRepository employeeMedicalDetailRepository;
+    UserMedicalDetailRepository userMedicalDetailRepository;
 
-    public LoginResponse userAuthetication(UserEntity user) throws Exception {
+    public LoginResponse userAuthetication(Login user) throws Exception {
         Map<String, Object> result = jwtUtil.validateToken(user.getToken());
         if (result.isEmpty() || result.get("email") == null || result.get("email").equals(""))
             throw new Exception("Invalid email");
@@ -44,7 +47,7 @@ public class LoginService implements ILoginService {
         var loginDetail = loginRepository.getLoginByEmailOrMobile("", email);
         if (loginDetail == null) {
             String name = result.get("name").toString();
-            loginDetail = addEmployeeService(name, email);
+            loginDetail = addUserService(name, email);
         }
         return getLoginResponse(loginDetail);
     }
@@ -66,30 +69,30 @@ public class LoginService implements ILoginService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    private Login addEmployeeService(String name, String email) throws Exception {
+    private Login addUserService(String name, String email) throws Exception {
         Date utilDate = new Date();
         var currentDate = new Timestamp(utilDate.getTime());
-        Employee employee = new Employee();
-        var lastEmployeeId = this.employeeRepository.getLastEmployeeId();
-        if (lastEmployeeId == null)
-            employee.setEmployeeId(1L);
+        User user = new User();
+        var lastUserId = userRepository.getLastUserId();
+        if (lastUserId == null)
+            user.setUserId(1L);
         else
-            employee.setEmployeeId(lastEmployeeId.getEmployeeId()+1);
+            user.setUserId(lastUserId.getUserId()+1);
 
         String[] splitStr = name.split("\\s+");
         if (splitStr.length == 1)
-            employee.setFirstName(splitStr[0]);
+            user.setFirstName(splitStr[0]);
         else {
-            employee.setFirstName(splitStr[0]);
-            employee.setLastName(splitStr[1]);
+            user.setFirstName(splitStr[0]);
+            user.setLastName(splitStr[1]);
         }
-        employee.setEmail(email);
-        employee.setRoleId(0);
-        employee.setDesignationId(0);
-        employee.setReporteeId(0);
-        employee.setActive(true);
-        employee.setCreatedOn(currentDate);
-        this.employeeRepository.save(employee);
+        user.setEmail(email);
+        user.setRoleId(0);
+        user.setDesignationId(0);
+        user.setReporteeId(0);
+        user.setActive(true);
+        user.setCreatedOn(currentDate);
+        userRepository.save(user);
 
         Login loginDetail = new Login();
         var lastLoginRecord = this.loginRepository.getLastLoginRecord();
@@ -98,7 +101,7 @@ public class LoginService implements ILoginService {
         }else {
             loginDetail.setLoginId(lastLoginRecord.getLoginId()+1);
         }
-        loginDetail.setEmployeeId(employee.getEmployeeId());
+        loginDetail.setUserId(user.getUserId());
         loginDetail.setEmail(email);
         loginDetail.setPassword(ApplicationConstant.DefaultPassword);
         loginDetail.setRoleId(0);
@@ -107,32 +110,32 @@ public class LoginService implements ILoginService {
         loginDetail.setCreatedOn(currentDate);
         this.loginRepository.save(loginDetail);
 
-        EmployeeDetail employeeDetail = new EmployeeDetail();
-        employeeDetail.setEmployeeId(employee.getEmployeeId());
-        employeeDetail.setJobTypeId(0);
-        employeeDetail.setExperienceInMonths(0);
-        employeeDetail.setLastWorkingDate(utilDate);
-        employeeDetail.setSalary(BigDecimal.ZERO);
-        employeeDetail.setExpectedSalary(BigDecimal.ZERO);
-        employeeDetail.setCreatedBy(1L);
-        employeeDetail.setCreatedOn(currentDate);
-        this.employeeDetailRepository.save(employeeDetail);
+        UserDetail userDetail = new UserDetail();
+        userDetail.setUserId(user.getUserId());
+        userDetail.setJobTypeId(0);
+        userDetail.setExperienceInMonths(0);
+        userDetail.setLastWorkingDate(utilDate);
+        userDetail.setSalary(BigDecimal.ZERO);
+        userDetail.setExpectedSalary(BigDecimal.ZERO);
+        userDetail.setCreatedBy(1L);
+        userDetail.setCreatedOn(currentDate);
+        userDetailRepository.save(userDetail);
 
-        EmployeeMedicalDetail employeeMedicalDetail = new EmployeeMedicalDetail();
-        var lastEmployeeMedicalDetailRecord = this.employeeMedicalDetailRepository.getLastEmployeeMedicalDetailRecord();
-        if (lastEmployeeMedicalDetailRecord == null){
-            employeeMedicalDetail.setEmployeeMedicalDetailId(1L);
+        UserMedicalDetail userMedicalDetail = new UserMedicalDetail();
+        var lastuserMedicalDetailRecord = userMedicalDetailRepository.getLastUerMedicalDetailRecord();
+        if (lastuserMedicalDetailRecord == null){
+            userMedicalDetail.setUserMedicalDetailId(1L);
         }else {
-            employeeMedicalDetail.setEmployeeMedicalDetailId(lastEmployeeMedicalDetailRecord.getEmployeeMedicalDetailId()+1);
+            userMedicalDetail.setUserMedicalDetailId(lastuserMedicalDetailRecord.getUserMedicalDetailId()+1);
         }
-        employeeMedicalDetail.setEmployeeId(employee.getEmployeeId());
-        employeeMedicalDetail.setMedicalConsultancyId(0);
-        employeeMedicalDetail.setConsultedOn(utilDate);
-        employeeMedicalDetail.setReferenceId(0L);
-        employeeMedicalDetail.setReportId(0);
-        employeeMedicalDetail.setCreatedBy(1L);
-        employeeMedicalDetail.setCreatedOn(currentDate);
-        this.employeeMedicalDetailRepository.save(employeeMedicalDetail);
+        userMedicalDetail.setUserId(user.getUserId());
+        userMedicalDetail.setMedicalConsultancyId(0);
+        userMedicalDetail.setConsultedOn(utilDate);
+        userMedicalDetail.setReferenceId(0L);
+        userMedicalDetail.setReportId(0);
+        userMedicalDetail.setCreatedBy(1L);
+        userMedicalDetail.setCreatedOn(currentDate);
+        userMedicalDetailRepository.save(userMedicalDetail);
 
         return loginDetail;
     }
@@ -142,7 +145,7 @@ public class LoginService implements ILoginService {
         String loginDetailJson = mapper.writeValueAsString(loginDetail);
         JwtTokenModel jwtTokenModel = new JwtTokenModel();
         jwtTokenModel.setUserDetail(loginDetailJson);
-        jwtTokenModel.setUserId(loginDetail.getEmployeeId());
+        jwtTokenModel.setUserId(loginDetail.getUserId());
         jwtTokenModel.setEmail(loginDetail.getEmail());
         jwtTokenModel.setCompanyCode("");
         switch (loginDetail.getRoleId()){
@@ -153,20 +156,20 @@ public class LoginService implements ILoginService {
                 jwtTokenModel.setRole(ApplicationConstant.Client);
                 break;
             default:
-                jwtTokenModel.setRole(ApplicationConstant.Employee);
+                jwtTokenModel.setRole(ApplicationConstant.User);
         }
 
         JwtGateway jwtGateway = JwtGateway.getJwtGateway();
         String result = jwtGateway.generateJwtToken(jwtTokenModel);
 
         LoginResponse loginResponse = new LoginResponse();
-        UserEntity userDetail = new UserEntity();
+        Login userDetail = new Login();
         Date oldDate = new Date(); // oldDate == current time
         final long hoursInMillis = 60L * 60L * 1000L;
         Date newDate = new Date(oldDate.getTime() + (2L * hoursInMillis)); // Adds 2 hours
         userDetail.setToken(result);
         userDetail.setTokenExpiryDuration(newDate);
-        userDetail.setEmployeeId(loginDetail.getEmployeeId());
+        userDetail.setUserId(loginDetail.getUserId());
         userDetail.setEmail(loginDetail.getEmail());
         userDetail.setMobile(loginDetail.getMobile());
         userDetail.setRoleId(loginDetail.getRoleId());
