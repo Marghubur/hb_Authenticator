@@ -71,6 +71,12 @@ public class User {
         @Column(name = "IsActive")
         boolean isActive;
 
+        @Column(name = "Followers")
+        String followers;
+
+        @Column(name = "Friends")
+        String friends;
+
         @Column(name = "CreatedBy")
         Long createdBy;
 

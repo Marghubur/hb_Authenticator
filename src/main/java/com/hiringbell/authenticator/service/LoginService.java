@@ -91,6 +91,8 @@ public class LoginService implements ILoginService {
         user.setDesignationId(0);
         user.setReporteeId(0);
         user.setActive(true);
+        user.setFriends("[]");
+        user.setFollowers("[]");
         user.setCreatedOn(currentDate);
         userRepository.save(user);
 
