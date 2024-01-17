@@ -106,7 +106,7 @@ public class LoginService implements ILoginService {
         loginDetail.setPassword(ApplicationConstant.DefaultPassword);
         loginDetail.setRoleId(0);
         loginDetail.setActive(true);
-        loginDetail.setCreatedBy(1L);
+        loginDetail.setCreatedBy(user.getUserId());
         loginDetail.setCreatedOn(currentDate);
         this.loginRepository.save(loginDetail);
 
@@ -117,7 +117,7 @@ public class LoginService implements ILoginService {
         userDetail.setLastWorkingDate(utilDate);
         userDetail.setSalary(BigDecimal.ZERO);
         userDetail.setExpectedSalary(BigDecimal.ZERO);
-        userDetail.setCreatedBy(1L);
+        userDetail.setCreatedBy(user.getUserId());
         userDetail.setCreatedOn(currentDate);
         userDetailRepository.save(userDetail);
 
@@ -133,7 +133,7 @@ public class LoginService implements ILoginService {
         userMedicalDetail.setConsultedOn(utilDate);
         userMedicalDetail.setReferenceId(0L);
         userMedicalDetail.setReportId(0);
-        userMedicalDetail.setCreatedBy(1L);
+        userMedicalDetail.setCreatedBy(user.getUserId());
         userMedicalDetail.setCreatedOn(currentDate);
         userMedicalDetailRepository.save(userMedicalDetail);
 
@@ -174,7 +174,7 @@ public class LoginService implements ILoginService {
         userDetail.setMobile(loginDetail.getMobile());
         userDetail.setRoleId(loginDetail.getRoleId());
         loginResponse.setUserDetail(userDetail);
-        loginResponse.setNewUser(true);
+        loginResponse.setNewUser(false);
         return loginResponse;
     }
 
