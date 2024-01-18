@@ -8,4 +8,5 @@ import org.springframework.stereotype.Component;
 public interface ILoginService {
     LoginResponse userAuthetication(Login user) throws Exception;
     LoginResponse authenticateUserService(Login login) throws Exception;
+    public String signupService(Login login);
 }
