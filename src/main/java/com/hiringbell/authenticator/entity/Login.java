@@ -67,4 +67,8 @@ public class Login {
     @JsonProperty("TokenExpiryDuration")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     Date tokenExpiryDuration;
+
+    @Transient
+    @JsonProperty("FullName")
+    String fullName;
 }
