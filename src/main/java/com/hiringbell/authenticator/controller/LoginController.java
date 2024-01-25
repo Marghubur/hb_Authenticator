@@ -5,10 +5,7 @@ import com.hiringbell.authenticator.entity.Login;
 import com.hiringbell.authenticator.model.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/hb/api/oauth")
@@ -27,4 +24,11 @@ public class LoginController {
         var result = loginService.authenticateUserService(login);
         return ResponseEntity.ok(ApiResponse.Ok(result));
     }
+
+    @PostMapping("/signup")
+    public ResponseEntity<ApiResponse> signup(@RequestBody Login login){
+        String result = this.loginService.signupService(login);
+        return ResponseEntity.ok(ApiResponse.Ok(result));
+    }
+
 }

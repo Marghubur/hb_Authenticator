@@ -199,4 +199,72 @@ public class LoginService implements ILoginService {
         if ((login.getEmail() == null || login.getEmail().isEmpty()) && (login.getMobile() == null || login.getMobile().isEmpty()))
             throw new Exception("Email or Mobile number is required");
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public String signupService(Login login) {
+        Date utilDate = new Date();
+        var currentDate = new Timestamp(utilDate.getTime());
+        User userObj = new User();
+        User lastUserRecord = this.userRepository.getLastUserId();
+        if (lastUserRecord == null){
+            userObj.setUserId(1L);
+        }else {
+            userObj.setUserId(lastUserRecord.getUserId()+1);
+        }
+        userObj.setEmail(login.getEmail());
+        userObj.setMobile(login.getMobile());
+        userObj.setRoleId(0);
+        userObj.setDesignationId(0);
+        userObj.setReporteeId(0);
+        userObj.setActive(true);
+        userObj.setFriends("[]");
+        userObj.setFollowers("[]");
+        userObj.setCreatedBy(userObj.getUserId());
+        userObj.setCreatedOn(currentDate);
+        userRepository.save(userObj);
+
+        Login loginDetail = new Login();
+        var lastLoginRecord = this.loginRepository.getLastLoginRecord();
+        if (lastLoginRecord == null){
+            loginDetail.setLoginId(1L);
+        }else {
+            loginDetail.setLoginId(lastLoginRecord.getLoginId()+1);
+        }
+        loginDetail.setUserId(login.getUserId());
+        loginDetail.setEmail(login.getEmail());
+        loginDetail.setPassword(login.getPassword());
+        loginDetail.setRoleId(0);
+        loginDetail.setActive(true);
+        loginDetail.setCreatedBy(userObj.getUserId());
+        loginDetail.setCreatedOn(currentDate);
+        this.loginRepository.save(loginDetail);
+
+        UserDetail userDetail = new UserDetail();
+        userDetail.setUserId(userObj.getUserId());
+        userDetail.setJobTypeId(0);
+        userDetail.setExperienceInMonths(0);
+        userDetail.setLastWorkingDate(utilDate);
+        userDetail.setSalary(BigDecimal.ZERO);
+        userDetail.setExpectedSalary(BigDecimal.ZERO);
+        userDetail.setCreatedBy(userObj.getUserId());
+        userDetail.setCreatedOn(currentDate);
+        userDetailRepository.save(userDetail);
+
+        UserMedicalDetail userMedicalDetail = new UserMedicalDetail();
+        var lastUerMedicalDetailRecord = this.userMedicalDetailRepository.getLastUerMedicalDetailRecord();
+        if (lastUerMedicalDetailRecord == null){
+            userMedicalDetail.setUserMedicalDetailId(1L);
+        }else{
+            userMedicalDetail.setUserMedicalDetailId(lastUerMedicalDetailRecord.getUserMedicalDetailId()+1);
+        }
+        userMedicalDetail.setUserId(userObj.getUserId());
+        userMedicalDetail.setMedicalConsultancyId(0);
+        userMedicalDetail.setConsultedOn(utilDate);
+        userMedicalDetail.setReferenceId(0L);
+        userMedicalDetail.setReportId(0);
+        userMedicalDetail.setCreatedBy(userObj.getUserId());
+        userMedicalDetail.setCreatedOn(currentDate);
+        userMedicalDetailRepository.save(userMedicalDetail);
+        return "signup completed";
+    }
 }
