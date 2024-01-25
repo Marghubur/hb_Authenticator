@@ -30,5 +30,4 @@ public class LoginController {
         String result = this.loginService.signupService(login);
         return ResponseEntity.ok(ApiResponse.Ok(result));
     }
-
 }

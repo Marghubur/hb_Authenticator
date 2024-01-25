@@ -116,7 +116,7 @@ public class LoginService implements ILoginService {
         userDetail.setUserId(user.getUserId());
         userDetail.setJobTypeId(0);
         userDetail.setExperienceInMonths(0);
-        userDetail.setLastWorkingDate(utilDate);
+        userDetail.setLastWorkingDate(currentDate);
         userDetail.setSalary(BigDecimal.ZERO);
         userDetail.setExpectedSalary(BigDecimal.ZERO);
         userDetail.setCreatedBy(user.getUserId());
@@ -132,7 +132,7 @@ public class LoginService implements ILoginService {
         }
         userMedicalDetail.setUserId(user.getUserId());
         userMedicalDetail.setMedicalConsultancyId(0);
-        userMedicalDetail.setConsultedOn(utilDate);
+        userMedicalDetail.setConsultedOn(currentDate);
         userMedicalDetail.setReferenceId(0L);
         userMedicalDetail.setReportId(0);
         userMedicalDetail.setCreatedBy(user.getUserId());
@@ -204,24 +204,30 @@ public class LoginService implements ILoginService {
     public String signupService(Login login) {
         Date utilDate = new Date();
         var currentDate = new Timestamp(utilDate.getTime());
-        User userObj = new User();
-        User lastUserRecord = this.userRepository.getLastUserId();
-        if (lastUserRecord == null){
-            userObj.setUserId(1L);
-        }else {
-            userObj.setUserId(lastUserRecord.getUserId()+1);
+        User user = new User();
+        var lastUserId = userRepository.getLastUserId();
+        if (lastUserId == null)
+            user.setUserId(1L);
+        else
+            user.setUserId(lastUserId.getUserId()+1);
+
+        String[] splitStr = login.getFullName().split("\\s+");
+        if (splitStr.length == 1)
+            user.setFirstName(splitStr[0]);
+        else {
+            user.setFirstName(splitStr[0]);
+            user.setLastName(splitStr[1]);
         }
-        userObj.setEmail(login.getEmail());
-        userObj.setMobile(login.getMobile());
-        userObj.setRoleId(0);
-        userObj.setDesignationId(0);
-        userObj.setReporteeId(0);
-        userObj.setActive(true);
-        userObj.setFriends("[]");
-        userObj.setFollowers("[]");
-        userObj.setCreatedBy(userObj.getUserId());
-        userObj.setCreatedOn(currentDate);
-        userRepository.save(userObj);
+        user.setEmail(login.getEmail());
+        user.setMobile(login.getMobile());
+        user.setRoleId(0);
+        user.setDesignationId(0);
+        user.setReporteeId(0);
+        user.setActive(true);
+        user.setFriends("[]");
+        user.setFollowers("[]");
+        user.setCreatedOn(currentDate);
+        userRepository.save(user);
 
         Login loginDetail = new Login();
         var lastLoginRecord = this.loginRepository.getLastLoginRecord();
@@ -230,41 +236,43 @@ public class LoginService implements ILoginService {
         }else {
             loginDetail.setLoginId(lastLoginRecord.getLoginId()+1);
         }
-        loginDetail.setUserId(login.getUserId());
+        loginDetail.setUserId(user.getUserId());
         loginDetail.setEmail(login.getEmail());
         loginDetail.setPassword(login.getPassword());
+        loginDetail.setMobile(login.getMobile());
         loginDetail.setRoleId(0);
         loginDetail.setActive(true);
-        loginDetail.setCreatedBy(userObj.getUserId());
+        loginDetail.setCreatedBy(user.getUserId());
         loginDetail.setCreatedOn(currentDate);
         this.loginRepository.save(loginDetail);
 
         UserDetail userDetail = new UserDetail();
-        userDetail.setUserId(userObj.getUserId());
+        userDetail.setUserId(user.getUserId());
         userDetail.setJobTypeId(0);
         userDetail.setExperienceInMonths(0);
-        userDetail.setLastWorkingDate(utilDate);
+        userDetail.setLastWorkingDate(currentDate);
         userDetail.setSalary(BigDecimal.ZERO);
         userDetail.setExpectedSalary(BigDecimal.ZERO);
-        userDetail.setCreatedBy(userObj.getUserId());
+        userDetail.setCreatedBy(user.getUserId());
         userDetail.setCreatedOn(currentDate);
         userDetailRepository.save(userDetail);
 
         UserMedicalDetail userMedicalDetail = new UserMedicalDetail();
-        var lastUerMedicalDetailRecord = this.userMedicalDetailRepository.getLastUerMedicalDetailRecord();
-        if (lastUerMedicalDetailRecord == null){
+        var lastuserMedicalDetailRecord = userMedicalDetailRepository.getLastUerMedicalDetailRecord();
+        if (lastuserMedicalDetailRecord == null){
             userMedicalDetail.setUserMedicalDetailId(1L);
-        }else{
-            userMedicalDetail.setUserMedicalDetailId(lastUerMedicalDetailRecord.getUserMedicalDetailId()+1);
+        }else {
+            userMedicalDetail.setUserMedicalDetailId(lastuserMedicalDetailRecord.getUserMedicalDetailId()+1);
         }
-        userMedicalDetail.setUserId(userObj.getUserId());
+        userMedicalDetail.setUserId(user.getUserId());
         userMedicalDetail.setMedicalConsultancyId(0);
-        userMedicalDetail.setConsultedOn(utilDate);
+        userMedicalDetail.setConsultedOn(currentDate);
         userMedicalDetail.setReferenceId(0L);
         userMedicalDetail.setReportId(0);
-        userMedicalDetail.setCreatedBy(userObj.getUserId());
+        userMedicalDetail.setCreatedBy(user.getUserId());
         userMedicalDetail.setCreatedOn(currentDate);
         userMedicalDetailRepository.save(userMedicalDetail);
+
         return "signup completed";
     }
 }
