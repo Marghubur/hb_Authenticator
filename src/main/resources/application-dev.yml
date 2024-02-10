@@ -11,7 +11,7 @@ spring:
     #    local instance
 #    url: jdbc:mysql://localhost:3306/hiringbell
 #    username: root
-#    password: Marghub12@
+#    password: Sarfaraz@35
 
     driver-class-name: com.mysql.cj.jdbc.Driver
 
