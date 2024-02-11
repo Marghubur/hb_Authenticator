@@ -51,22 +51,13 @@ public class Login {
 
     @Column(name = "CreatedOn")
     @JsonProperty("CreatedOn")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
     Date createdOn;
 
     @Column(name = "UpdatedOn")
     @JsonProperty("UpdatedOn")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
     Date updatedOn;
-
-    @Transient
-    @JsonProperty("Token")
-    String token;
-
-    @Transient
-    @JsonProperty("TokenExpiryDuration")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    Date tokenExpiryDuration;
 
     @Transient
     @JsonProperty("FullName")

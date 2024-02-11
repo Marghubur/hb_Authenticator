@@ -1,10 +1,13 @@
 package com.hiringbell.authenticator.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hiringbell.authenticator.contract.ILoginService;
+import com.hiringbell.authenticator.db.LowLevelExecution;
 import com.hiringbell.authenticator.entity.*;
 import com.hiringbell.authenticator.jwtconfig.JwtGateway;
 import com.hiringbell.authenticator.model.ApplicationConstant;
+import com.hiringbell.authenticator.model.DbParameters;
 import com.hiringbell.authenticator.model.JwtTokenModel;
 import com.hiringbell.authenticator.model.LoginResponse;
 import com.hiringbell.authenticator.repository.UserDetailRepository;
@@ -18,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.Map;
+import java.sql.Types;
+import java.util.*;
 
 @Service
 public class LoginService implements ILoginService {
@@ -38,38 +41,67 @@ public class LoginService implements ILoginService {
     @Autowired
     UserMedicalDetailRepository userMedicalDetailRepository;
 
-    public LoginResponse userAuthetication(Login user) throws Exception {
+    @Autowired
+    LowLevelExecution lowLevelExecution;
+    @Autowired
+    ObjectMapper objectMapper;
+
+    public LoginResponse userAuthetication(User user) throws Exception {
         Map<String, Object> result = jwtUtil.validateToken(user.getToken());
         if (result.isEmpty() || result.get("email") == null || result.get("email").equals(""))
             throw new Exception("Invalid email");
 
         String email = result.get("email").toString();
-        var loginDetail = loginRepository.getLoginByEmailOrMobile("", email);
-        if (loginDetail == null) {
+        var data = getgUserByEmailOrMobile(email, "");
+        User userdetail = null;
+        if (data.get("LoginDetail") == null) {
             String name = result.get("name").toString();
-            loginDetail = addUserService(name, email);
+            userdetail = addUserService(name, email);
+        } else {
+            userdetail = (User) data.get("UserDetail");
         }
-        return getLoginResponse(loginDetail);
+        return getLoginResponse(userdetail, 0);
     }
 
     public LoginResponse authenticateUserService(Login login) throws Exception {
         try {
             validateLoginDetail(login);
-            Login loginDetail = null;
-            loginDetail = loginRepository.getLoginByEmailOrMobile(login.getMobile(), login.getEmail());
-
+            var data = getgUserByEmailOrMobile(login.getEmail(), login.getMobile());
+            Login loginDetail = (Login) data.get("LoginDetail");
             if (loginDetail == null)
                 throw new Exception("Login detail not found");
 
             validateCredential(loginDetail, login);
-            return getLoginResponse(loginDetail);
+            User user = (User) data.get("UserDetail");
+            return getLoginResponse(user, login.getRoleId());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
+    private Map<String, Object> getgUserByEmailOrMobile(String email, String mobile) throws Exception {
+        var dataSet = lowLevelExecution.executeProcedure("sp_Userlogin_Auth",
+                Arrays.asList(
+                        new DbParameters("_Mobile", mobile, Types.VARCHAR),
+                        new DbParameters("_Email", email, Types.VARCHAR)
+                )
+        );
+        if (dataSet == null || dataSet.size() != 3)
+            throw new Exception("Fail to get user detail. Please contact to admin.");
+
+        List<User> users = objectMapper.convertValue(dataSet.get("#result-set-1"), new TypeReference< List<User>>() {});
+        List<Login> logins = objectMapper.convertValue(dataSet.get("#result-set-2"), new TypeReference< List<Login>>() {});
+        if (users.size() == 0 || logins.size() == 0)
+            throw new Exception("Invalid email or mobile number");
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("UserDetail", users.get(0));
+        response.put("LoginDetail", logins.get(0));
+        return  response;
+    }
+
     @Transactional(rollbackFor = Exception.class)
-    private Login addUserService(String name, String email) throws Exception {
+    private User addUserService(String name, String email) throws Exception {
         Date utilDate = new Date();
         var currentDate = new Timestamp(utilDate.getTime());
         User user = new User();
@@ -139,18 +171,18 @@ public class LoginService implements ILoginService {
         userMedicalDetail.setCreatedOn(currentDate);
         userMedicalDetailRepository.save(userMedicalDetail);
 
-        return loginDetail;
+        return user;
     }
 
-    private LoginResponse getLoginResponse(Login loginDetail) throws IOException {
+    private LoginResponse getLoginResponse(User user, int roleId) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        String loginDetailJson = mapper.writeValueAsString(loginDetail);
+        String userDetailJson = mapper.writeValueAsString(user);
         JwtTokenModel jwtTokenModel = new JwtTokenModel();
-        jwtTokenModel.setUserDetail(loginDetailJson);
-        jwtTokenModel.setUserId(loginDetail.getUserId());
-        jwtTokenModel.setEmail(loginDetail.getEmail());
+        jwtTokenModel.setUserDetail(userDetailJson);
+        jwtTokenModel.setUserId(user.getUserId());
+        jwtTokenModel.setEmail(user.getEmail());
         jwtTokenModel.setCompanyCode("");
-        switch (loginDetail.getRoleId()){
+        switch (roleId){
             case 1:
                 jwtTokenModel.setRole(ApplicationConstant.Admin);
                 break;
@@ -165,17 +197,12 @@ public class LoginService implements ILoginService {
         String result = jwtGateway.generateJwtToken(jwtTokenModel);
 
         LoginResponse loginResponse = new LoginResponse();
-        Login userDetail = new Login();
         Date oldDate = new Date(); // oldDate == current time
         final long hoursInMillis = 60L * 60L * 1000L;
         Date newDate = new Date(oldDate.getTime() + (2L * hoursInMillis)); // Adds 2 hours
-        userDetail.setToken(result);
-        userDetail.setTokenExpiryDuration(newDate);
-        userDetail.setUserId(loginDetail.getUserId());
-        userDetail.setEmail(loginDetail.getEmail());
-        userDetail.setMobile(loginDetail.getMobile());
-        userDetail.setRoleId(loginDetail.getRoleId());
-        loginResponse.setUserDetail(userDetail);
+        user.setToken(result);
+        user.setTokenExpiryDuration(newDate);
+        loginResponse.setUserDetail(user);
         loginResponse.setNewUser(false);
         return loginResponse;
     }
