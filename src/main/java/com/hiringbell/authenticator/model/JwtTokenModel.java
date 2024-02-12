@@ -24,6 +24,4 @@ public class JwtTokenModel {
 
     @JsonProperty("Role")
     String role;
-
-
 }
