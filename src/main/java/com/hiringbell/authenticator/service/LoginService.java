@@ -54,7 +54,7 @@ public class LoginService implements ILoginService {
         String email = result.get("email").toString();
         var data = getgUserByEmailOrMobile(email, "");
         User userdetail = null;
-        if (data.get("LoginDetail") == null) {
+        if (data== null || data.get("LoginDetail") == null) {
             String name = result.get("name").toString();
             userdetail = addUserService(name, email);
         } else {
@@ -67,6 +67,9 @@ public class LoginService implements ILoginService {
         try {
             validateLoginDetail(login);
             var data = getgUserByEmailOrMobile(login.getEmail(), login.getMobile());
+            if (data == null || data.get("LoginDetail") == null)
+                throw new Exception("Login detail not found");
+
             Login loginDetail = (Login) data.get("LoginDetail");
             if (loginDetail == null)
                 throw new Exception("Login detail not found");
@@ -92,7 +95,7 @@ public class LoginService implements ILoginService {
         List<User> users = objectMapper.convertValue(dataSet.get("#result-set-1"), new TypeReference< List<User>>() {});
         List<Login> logins = objectMapper.convertValue(dataSet.get("#result-set-2"), new TypeReference< List<Login>>() {});
         if (users.size() == 0 || logins.size() == 0)
-            throw new Exception("Invalid email or mobile number");
+            return null;
 
         Map<String, Object> response = new HashMap<>();
         response.put("UserDetail", users.get(0));
