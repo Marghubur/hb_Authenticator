@@ -128,6 +128,9 @@ public class LoginService implements ILoginService {
         user.setActive(true);
         user.setFriends("[]");
         user.setFollowers("[]");
+        user.setJobCategoryId(0);
+        user.setCategoryTypeIds("[]");
+        user.setJobLocationIds("[]");
         user.setCreatedOn(currentDate);
         userRepository.save(user);
 
@@ -256,6 +259,9 @@ public class LoginService implements ILoginService {
         user.setActive(true);
         user.setFriends("[]");
         user.setFollowers("[]");
+        user.setJobCategoryId(0);
+        user.setCategoryTypeIds("[]");
+        user.setJobLocationIds("[]");
         user.setCreatedOn(currentDate);
         userRepository.save(user);
 
