@@ -4,6 +4,7 @@ import com.hiringbell.authenticator.contract.ILoginService;
 import com.hiringbell.authenticator.entity.Login;
 import com.hiringbell.authenticator.entity.User;
 import com.hiringbell.authenticator.model.ApiResponse;
+import com.hiringbell.authenticator.model.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +28,8 @@ public class LoginController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> signup(@RequestBody Login login){
-        String result = this.loginService.signupService(login);
+    public ResponseEntity<ApiResponse> signup(@RequestBody Login login) throws Exception {
+        var result = this.loginService.signupService(login);
         return ResponseEntity.ok(ApiResponse.Ok(result));
     }
 }
