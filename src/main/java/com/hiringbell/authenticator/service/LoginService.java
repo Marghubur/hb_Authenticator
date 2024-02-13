@@ -231,7 +231,7 @@ public class LoginService implements ILoginService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public String signupService(Login login) {
+    public LoginResponse signupService(Login login) throws Exception {
         Date utilDate = new Date();
         var currentDate = new Timestamp(utilDate.getTime());
         User user = new User();
@@ -302,7 +302,9 @@ public class LoginService implements ILoginService {
         userMedicalDetail.setCreatedBy(user.getUserId());
         userMedicalDetail.setCreatedOn(currentDate);
         userMedicalDetailRepository.save(userMedicalDetail);
+        LoginResponse loginResponseResult = authenticateUserService(login);
 
-        return "signup completed";
+//        return "signup completed";
+        return loginResponseResult;
     }
 }
