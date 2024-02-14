@@ -13,6 +13,6 @@ public class LoginResponse {
     @JsonProperty("UserDetail")
     User userDetail;
 
-    @JsonProperty("IsNewUser")
-    boolean isNewUser;
+    @JsonProperty("IsAccountConfig")
+    boolean isAccountConfig;
 }

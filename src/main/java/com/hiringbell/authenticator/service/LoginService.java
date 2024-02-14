@@ -54,13 +54,19 @@ public class LoginService implements ILoginService {
         String email = result.get("email").toString();
         var data = getgUserByEmailOrMobile(email, "");
         User userdetail = null;
+        var isAccountConfig = false;
         if (data== null || data.get("LoginDetail") == null) {
             String name = result.get("name").toString();
             userdetail = addUserService(name, email);
+            isAccountConfig = false;
         } else {
             userdetail = (User) data.get("UserDetail");
+            Login loginDetail = (Login) data.get("LoginDetail");
+            isAccountConfig = loginDetail.isAccountConfig();
         }
-        return getLoginResponse(userdetail, 0);
+        var loginResponse = getLoginResponse(userdetail, 0);
+        loginResponse.setAccountConfig(isAccountConfig);
+        return  loginResponse;
     }
 
     public LoginResponse authenticateUserService(Login login) throws Exception {
@@ -76,7 +82,9 @@ public class LoginService implements ILoginService {
 
             validateCredential(loginDetail, login);
             User user = (User) data.get("UserDetail");
-            return getLoginResponse(user, login.getRoleId());
+            var loginResponse =  getLoginResponse(user, login.getRoleId());
+            loginResponse.setAccountConfig(loginDetail.isAccountConfig());
+            return loginResponse;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -147,6 +155,7 @@ public class LoginService implements ILoginService {
         loginDetail.setRoleId(0);
         loginDetail.setActive(true);
         loginDetail.setCreatedBy(user.getUserId());
+        loginDetail.setAccountConfig(false);
         loginDetail.setCreatedOn(currentDate);
         this.loginRepository.save(loginDetail);
 
@@ -209,7 +218,6 @@ public class LoginService implements ILoginService {
         user.setToken(result);
         user.setTokenExpiryDuration(newDate);
         loginResponse.setUserDetail(user);
-        loginResponse.setNewUser(false);
         return loginResponse;
     }
 
@@ -280,6 +288,7 @@ public class LoginService implements ILoginService {
         loginDetail.setActive(true);
         loginDetail.setCreatedBy(user.getUserId());
         loginDetail.setCreatedOn(currentDate);
+        loginDetail.setAccountConfig(false);
         this.loginRepository.save(loginDetail);
 
         UserDetail userDetail = new UserDetail();
@@ -308,9 +317,8 @@ public class LoginService implements ILoginService {
         userMedicalDetail.setCreatedBy(user.getUserId());
         userMedicalDetail.setCreatedOn(currentDate);
         userMedicalDetailRepository.save(userMedicalDetail);
-        LoginResponse loginResponseResult = authenticateUserService(login);
-
-//        return "signup completed";
-        return loginResponseResult;
+        LoginResponse loginResponse = getLoginResponse(user, loginDetail.getRoleId());
+        loginResponse.setAccountConfig(loginDetail.isAccountConfig());
+        return loginResponse;
     }
 }
