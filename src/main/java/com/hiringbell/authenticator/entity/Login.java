@@ -41,6 +41,10 @@ public class Login {
     @JsonProperty("IsActive")
     boolean isActive;
 
+    @Column(name = "IsAccountConfig")
+    @JsonProperty("IsAccountConfig")
+    boolean isAccountConfig;
+
     @Column(name = "CreatedBy")
     @JsonProperty("CreatedBy")
     Long createdBy;

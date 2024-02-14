@@ -70,6 +70,18 @@ public class User {
         @JsonProperty("RoleId")
         int roleId;
 
+        @Column(name = "JobCategoryId")
+        @JsonProperty("JobCategoryId")
+        int jobCategoryId;
+
+        @Column(name = "CategoryTypeIds")
+        @JsonProperty("CategoryTypeIds")
+        String categoryTypeIds;
+
+        @Column(name = "JobLocationIds")
+        @JsonProperty("JobLocationIds")
+        String jobLocationIds;
+
         @Column(name = "DesignationId")
         @JsonProperty("DesignationId")
         int designationId;
