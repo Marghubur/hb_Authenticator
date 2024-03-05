@@ -4,15 +4,9 @@ spring:
       enabled: false
 
   datasource:
-    url: jdbc:mysql://192.168.0.101:3308/hiringbell
+    url: jdbc:mysql://178.16.138.169:3308/hiringbell_dev
     username: root
     password: live@Bottomhalf_001
-
-    #    local instance
-#    url: jdbc:mysql://localhost:3306/hiringbell
-#    username: root
-#    password: Sarfaraz@35
-
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   security:
