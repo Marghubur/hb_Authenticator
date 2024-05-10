@@ -49,5 +49,6 @@ public class LowLevelExecution {
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to find the database name ");
         }
+        return schemaName;
     }
 }
