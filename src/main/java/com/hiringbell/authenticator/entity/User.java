@@ -132,4 +132,8 @@ public class User {
         @JsonProperty("TokenExpiryDuration")
         @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
         Date tokenExpiryDuration;
+
+        @Column(name = "ImageURL")
+        @JsonProperty("ImageURL")
+        String imageURL;
 }
