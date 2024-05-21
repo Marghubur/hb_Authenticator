@@ -1,6 +1,4 @@
 package com.hiringbell.authenticator.model;
-
-
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -14,5 +12,4 @@ public class MasterDatabaseManager {
     String url;
     String username;
     String password;
-
 }
