@@ -93,8 +93,8 @@ public class LoginService implements ILoginService {
     private Map<String, Object> getgUserByEmailOrMobile(String email, String mobile) throws Exception {
         var dataSet = lowLevelExecution.executeProcedure("sp_Userlogin_Auth",
                 Arrays.asList(
-                        new DbParameters("_Mobile", mobile, Types.VARCHAR),
-                        new DbParameters("_Email", email, Types.VARCHAR)
+                        new DbParameters("_mobile", mobile, Types.VARCHAR),
+                        new DbParameters("_email", email, Types.VARCHAR)
                 )
         );
         if (dataSet == null || dataSet.size() != 3)
@@ -102,7 +102,7 @@ public class LoginService implements ILoginService {
 
         List<User> users = objectMapper.convertValue(dataSet.get("#result-set-1"), new TypeReference< List<User>>() {});
         List<Login> logins = objectMapper.convertValue(dataSet.get("#result-set-2"), new TypeReference< List<Login>>() {});
-        if (users.size() == 0 || logins.size() == 0)
+        if (users.isEmpty() || logins.isEmpty())
             return null;
 
         Map<String, Object> response = new HashMap<>();
@@ -245,7 +245,9 @@ public class LoginService implements ILoginService {
     public LoginResponse signupService(Login login) throws Exception {
         Date utilDate = new Date();
         var currentDate = new Timestamp(utilDate.getTime());
+
         User user = new User();
+
         var lastUserId = userRepository.getLastUserId();
         if (lastUserId == null)
             user.setUserId(1L);
