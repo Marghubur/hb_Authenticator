@@ -14,122 +14,69 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="user")
+@Table(name = "user")
 public class User {
 
-        @Id
-        @Column(name = "UserId")
-        @JsonProperty("UserId")
-        Long userId;
+    @Id
+    Long userId;
+    String firstName;
 
-        @Column(name = "FirstName")
-        @JsonProperty("FirstName")
-        String firstName;
+    String lastName;
 
-        @Column(name = "LastName")
-        @JsonProperty("LastName")
-        String lastName;
+    String fatherName;
 
-        @Column(name = "FatherName")
-        @JsonProperty("FatherName")
-        String fatherName;
+    String motherName;
 
-        @Column(name = "MotherName")
-        @JsonProperty("MotherName")
-        String motherName;
+    String email;
 
-        @Column(name = "Email")
-        @JsonProperty("Email")
-        String email;
+    String mobile;
 
-        @Column(name = "Mobile")
-        @JsonProperty("Mobile")
-        String mobile;
+    String alternateNumber;
 
-        @Column(name = "AlternateNumber")
-        @JsonProperty("AlternateNumber")
-        String alternateNumber;
+    String address;
 
-        @Column(name = "Address")
-        @JsonProperty("Address")
-        String address;
+    String city;
 
-        @Column(name = "City")
-        @JsonProperty("City")
-        String city;
+    String state;
 
-        @Column(name = "State")
-        @JsonProperty("State")
-        String state;
+    String country;
 
-        @Column(name = "Country")
-        @JsonProperty("Country")
-        String country;
+    int roleId;
 
-        @Column(name = "RoleId")
-        @JsonProperty("RoleId")
-        int roleId;
+    int jobCategoryId;
 
-        @Column(name = "JobCategoryId")
-        @JsonProperty("JobCategoryId")
-        int jobCategoryId;
+    String categoryTypeIds;
 
-        @Column(name = "CategoryTypeIds")
-        @JsonProperty("CategoryTypeIds")
-        String categoryTypeIds;
+    String jobLocationIds;
 
-        @Column(name = "JobLocationIds")
-        @JsonProperty("JobLocationIds")
-        String jobLocationIds;
+    int designationId;
 
-        @Column(name = "DesignationId")
-        @JsonProperty("DesignationId")
-        int designationId;
+    int pinCode;
 
-        @Column(name = "PinCode")
-        @JsonProperty("PinCode")
-        int pinCode;
+    long reporteeId;
 
-        @Column(name = "ReporteeId")
-        @JsonProperty("ReporteeId")
-        long reporteeId;
+    @JsonProperty("isActive")
+    boolean isActive;
 
-        @Column(name = "IsActive")
-        @JsonProperty("IsActive")
-        boolean isActive;
+    String followers;
 
-        @Column(name = "Followers")
-        @JsonProperty("Followers")
-        String followers;
+    String friends;
 
-        @Column(name = "Friends")
-        @JsonProperty("Friends")
-        String friends;
+    Long createdBy;
 
-        @Column(name = "CreatedBy")
-        @JsonProperty("CreatedBy")
-        Long createdBy;
+    Long updatedBy;
 
-        @Column(name = "UpdatedBy")
-        @JsonProperty("UpdatedBy")
-        Long updatedBy;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    Date createdOn;
 
-        @Column(name = "CreatedOn")
-        @JsonProperty("CreatedOn")
-        @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-        Date createdOn;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    Date updatedOn;
 
-        @Column(name = "UpdatedOn")
-        @JsonProperty("UpdatedOn")
-        @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-        Date updatedOn;
+    @Transient
+    @JsonProperty("token")
+    String token;
 
-        @Transient
-        @JsonProperty("Token")
-        String token;
-
-        @Transient
-        @JsonProperty("TokenExpiryDuration")
-        @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-        Date tokenExpiryDuration;
+    @Transient
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    Date tokenExpiryDuration;
 }
