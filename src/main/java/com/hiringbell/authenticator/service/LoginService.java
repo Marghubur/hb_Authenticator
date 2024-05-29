@@ -14,6 +14,7 @@ import com.hiringbell.authenticator.repository.UserDetailRepository;
 import com.hiringbell.authenticator.repository.UserMedicalDetailRepository;
 import com.hiringbell.authenticator.repository.UserRepository;
 import com.hiringbell.authenticator.repository.LoginRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +49,15 @@ public class LoginService implements ILoginService {
 
     public LoginResponse userAuthetication(User user) throws Exception {
         Map<String, Object> result = jwtUtil.validateToken(user.getToken());
+        return userAuthenticateByEmail(result);
+    }
+
+    public LoginResponse userAutheticationMobile(User user) throws Exception {
+        Map<String, Object> result = jwtUtil.ValidateGoogleAuthToken(user.getToken());
+        return userAuthenticateByEmail(result);
+    }
+
+    private @NotNull LoginResponse userAuthenticateByEmail(Map<String, Object> result) throws Exception {
         if (result.isEmpty() || result.get("email") == null || result.get("email").equals(""))
             throw new Exception("Invalid email");
 
@@ -66,7 +76,7 @@ public class LoginService implements ILoginService {
         }
         var loginResponse = getLoginResponse(userdetail, 0);
         loginResponse.setAccountConfig(isAccountConfig);
-        return  loginResponse;
+        return loginResponse;
     }
 
     public LoginResponse authenticateUserService(Login login) throws Exception {
