@@ -21,6 +21,13 @@ public class LoginController {
         return ResponseEntity.ok(ApiResponse.Ok(result));
     }
 
+    @GetMapping("/remove_user")
+    public ResponseEntity<ApiResponse> remove_user() {
+        var result = "your account deleted successfully";
+        return ResponseEntity.ok(ApiResponse.Ok(result));
+    }
+
+
     @PostMapping("/googlemobilelogin")
     public ResponseEntity<ApiResponse> registerWithGoogleMobile(@RequestBody User user) throws Exception {
         var result = loginService.userAutheticationMobile(user);
