@@ -21,6 +21,12 @@ public class LoginController {
         return ResponseEntity.ok(ApiResponse.Ok(result));
     }
 
+    @PostMapping("/googlemobilelogin")
+    public ResponseEntity<ApiResponse> registerWithGoogleMobile(@RequestBody User user) throws Exception {
+        var result = loginService.userAutheticationMobile(user);
+        return ResponseEntity.ok(ApiResponse.Ok(result));
+    }
+
     @PostMapping("/authenticate")
     public ResponseEntity<ApiResponse> authenticate(@RequestBody Login login) throws Exception {
         var result = loginService.authenticateUserService(login);
