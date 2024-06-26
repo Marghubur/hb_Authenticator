@@ -66,6 +66,8 @@ public class User {
 
     Long updatedBy;
 
+    String gender;
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     Date createdOn;
 
@@ -79,4 +81,5 @@ public class User {
     @Transient
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     Date tokenExpiryDuration;
+
 }

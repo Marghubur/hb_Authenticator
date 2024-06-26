@@ -333,4 +333,62 @@ public class LoginService implements ILoginService {
         loginResponse.setAccountConfig(loginDetail.isAccountConfig());
         return loginResponse;
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public LoginResponse shortSignupService(Login login) throws Exception {
+        Date utilDate = new Date();
+        var currentDate = new Timestamp(utilDate.getTime());
+
+        User user = new User();
+
+        var lastUserId = userRepository.getLastUserId();
+        if (lastUserId == null)
+            user.setUserId(1L);
+        else
+            user.setUserId(lastUserId.getUserId()+1);
+
+        String[] splitStr = login.getFullName().split("\\s+");
+        if (splitStr.length == 1)
+            user.setFirstName(splitStr[0]);
+        else {
+            user.setFirstName(splitStr[0]);
+            user.setLastName(splitStr[1]);
+        }
+        user.setEmail(login.getEmail());
+        user.setMobile(login.getMobile());
+        user.setGender(login.getGender());
+        user.setRoleId(0);
+        user.setDesignationId(0);
+        user.setReporteeId(0);
+        user.setActive(true);
+        user.setFriends("[]");
+        user.setFollowers("[]");
+        user.setJobCategoryId(0);
+        user.setCategoryTypeIds("[]");
+        user.setJobLocationIds("[]");
+        user.setCreatedOn(currentDate);
+        userRepository.save(user);
+
+        Login loginDetail = new Login();
+        var lastLoginRecord = this.loginRepository.getLastLoginRecord();
+        if (lastLoginRecord == null){
+            loginDetail.setLoginId(1L);
+        }else {
+            loginDetail.setLoginId(lastLoginRecord.getLoginId()+1);
+        }
+        loginDetail.setUserId(user.getUserId());
+        loginDetail.setEmail(login.getEmail());
+        loginDetail.setPassword(login.getPassword());
+        loginDetail.setRoleId(0);
+        loginDetail.setActive(true);
+        loginDetail.setCreatedBy(user.getUserId());
+        loginDetail.setCreatedOn(currentDate);
+        loginDetail.setAccountConfig(false);
+        this.loginRepository.save(loginDetail);
+
+        LoginResponse loginResponse = getLoginResponse(user, loginDetail.getRoleId());
+        loginResponse.setAccountConfig(loginDetail.isAccountConfig());
+        return loginResponse;
+    }
+
 }
