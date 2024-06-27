@@ -65,4 +65,8 @@ public class Login {
     @Transient
     @JsonProperty("fullName")
     String fullName;
+
+    @Transient
+    @JsonProperty("gender")
+    String gender;
 }

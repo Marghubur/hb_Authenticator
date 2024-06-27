@@ -10,6 +10,7 @@ public interface ILoginService {
     LoginResponse userAuthetication(User user) throws Exception;
     LoginResponse authenticateUserService(Login login) throws Exception;
     public LoginResponse signupService(Login login) throws Exception;
+    public LoginResponse shortSignupService(Login login) throws Exception;
 
     LoginResponse userAutheticationMobile(User user) throws Exception;
 }

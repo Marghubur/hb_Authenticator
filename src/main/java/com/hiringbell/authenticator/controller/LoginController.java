@@ -45,4 +45,10 @@ public class LoginController {
         var result = this.loginService.signupService(login);
         return ResponseEntity.ok(ApiResponse.Ok(result));
     }
+
+    @PostMapping("/shortsignup")
+    public ResponseEntity<ApiResponse> shortsignup(@RequestBody Login login) throws Exception {
+        var result = this.loginService.shortSignupService(login);
+        return ResponseEntity.ok(ApiResponse.Ok(result));
+    }
 }
