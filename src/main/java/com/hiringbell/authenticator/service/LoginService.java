@@ -350,7 +350,7 @@ public class LoginService implements ILoginService {
         String[] splitStr = login.getFullName().split("\\s+");
         if (splitStr.length == 1)
             user.setFirstName(splitStr[0]);
-        else {
+        else if (splitStr.length > 1) {
             user.setFirstName(splitStr[0]);
             user.setLastName(splitStr[1]);
         }
