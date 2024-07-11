@@ -68,6 +68,8 @@ public class User {
 
     String gender;
 
+    String imageURL;
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     Date createdOn;
 
