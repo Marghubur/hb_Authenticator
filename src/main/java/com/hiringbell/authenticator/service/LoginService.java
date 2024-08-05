@@ -15,6 +15,7 @@ import com.hiringbell.authenticator.repository.UserMedicalDetailRepository;
 import com.hiringbell.authenticator.repository.UserRepository;
 import com.hiringbell.authenticator.repository.LoginRepository;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,25 +50,23 @@ public class LoginService implements ILoginService {
 
     public LoginResponse userAuthetication(User user) throws Exception {
         Map<String, Object> result = jwtUtil.validateToken(user.getToken());
-        return userAuthenticateByEmail(result);
+        return userAuthenticateByEmail(user, result);
     }
 
     public LoginResponse userAutheticationMobile(User user) throws Exception {
         Map<String, Object> result = jwtUtil.ValidateGoogleAuthToken(user.getToken());
-        return userAuthenticateByEmail(result);
+        return userAuthenticateByEmail(user, result);
     }
 
-    private @NotNull LoginResponse userAuthenticateByEmail(Map<String, Object> result) throws Exception {
-        if (result.isEmpty() || result.get("email") == null || result.get("email").equals(""))
-            throw new Exception("Invalid email");
+    private @NotNull LoginResponse userAuthenticateByEmail(User user, Map<String, Object> result) throws Exception {
+        if (!result.get("email").equals(user.getEmail()))
+            throw new Exception("Invalid email used");
 
-        String email = result.get("email").toString();
-        var data = getgUserByEmailOrMobile(email, "");
+        var data = getgUserByEmailOrMobile(user.getEmail(), "");
         User userdetail = null;
         var isAccountConfig = false;
-        if (data== null || data.get("LoginDetail") == null) {
-            String name = result.get("name").toString();
-            userdetail = addUserService(name, email);
+        if (data == null || data.get("LoginDetail") == null) {
+            userdetail = addUserService(user);
             isAccountConfig = false;
         } else {
             userdetail = (User) data.get("UserDetail");
@@ -92,7 +91,7 @@ public class LoginService implements ILoginService {
 
             validateCredential(loginDetail, login);
             User user = (User) data.get("UserDetail");
-            var loginResponse =  getLoginResponse(user, login.getRoleId());
+            var loginResponse = getLoginResponse(user, login.getRoleId());
             loginResponse.setAccountConfig(loginDetail.isAccountConfig());
             return loginResponse;
         } catch (Exception e) {
@@ -110,36 +109,29 @@ public class LoginService implements ILoginService {
         if (dataSet == null || dataSet.size() != 3)
             throw new Exception("Fail to get user detail. Please contact to admin.");
 
-        List<User> users = objectMapper.convertValue(dataSet.get("#result-set-1"), new TypeReference< List<User>>() {});
-        List<Login> logins = objectMapper.convertValue(dataSet.get("#result-set-2"), new TypeReference< List<Login>>() {});
+        List<User> users = objectMapper.convertValue(dataSet.get("#result-set-1"), new TypeReference<List<User>>() {
+        });
+        List<Login> logins = objectMapper.convertValue(dataSet.get("#result-set-2"), new TypeReference<List<Login>>() {
+        });
         if (users.isEmpty() || logins.isEmpty())
             return null;
 
         Map<String, Object> response = new HashMap<>();
         response.put("UserDetail", users.get(0));
         response.put("LoginDetail", logins.get(0));
-        return  response;
+        return response;
     }
 
     @Transactional(rollbackFor = Exception.class)
-    private User addUserService(String name, String email) throws Exception {
+    private User addUserService(User user) throws Exception {
         Date utilDate = new Date();
         var currentDate = new Timestamp(utilDate.getTime());
-        User user = new User();
         var lastUserId = userRepository.getLastUserId();
         if (lastUserId == null)
             user.setUserId(1L);
         else
-            user.setUserId(lastUserId.getUserId()+1);
+            user.setUserId(lastUserId.getUserId() + 1);
 
-        String[] splitStr = name.split("\\s+");
-        if (splitStr.length == 1)
-            user.setFirstName(splitStr[0]);
-        else {
-            user.setFirstName(splitStr[0]);
-            user.setLastName(splitStr[1]);
-        }
-        user.setEmail(email);
         user.setRoleId(0);
         user.setDesignationId(0);
         user.setReporteeId(0);
@@ -152,21 +144,7 @@ public class LoginService implements ILoginService {
         user.setCreatedOn(currentDate);
         userRepository.save(user);
 
-        Login loginDetail = new Login();
-        var lastLoginRecord = this.loginRepository.getLastLoginRecord();
-        if (lastLoginRecord == null){
-            loginDetail.setLoginId(1L);
-        }else {
-            loginDetail.setLoginId(lastLoginRecord.getLoginId()+1);
-        }
-        loginDetail.setUserId(user.getUserId());
-        loginDetail.setEmail(email);
-        loginDetail.setPassword(ApplicationConstant.DefaultPassword);
-        loginDetail.setRoleId(0);
-        loginDetail.setActive(true);
-        loginDetail.setCreatedBy(user.getUserId());
-        loginDetail.setAccountConfig(false);
-        loginDetail.setCreatedOn(currentDate);
+        Login loginDetail = getLogin(currentDate, user);
         this.loginRepository.save(loginDetail);
 
         UserDetail userDetail = new UserDetail();
@@ -180,12 +158,20 @@ public class LoginService implements ILoginService {
         userDetail.setCreatedOn(currentDate);
         userDetailRepository.save(userDetail);
 
+        UserMedicalDetail userMedicalDetail = getUserMedicalDetail(user, currentDate);
+        userMedicalDetailRepository.save(userMedicalDetail);
+
+        return user;
+    }
+
+    @NotNull
+    private UserMedicalDetail getUserMedicalDetail(User user, Timestamp currentDate) {
         UserMedicalDetail userMedicalDetail = new UserMedicalDetail();
-        var lastuserMedicalDetailRecord = userMedicalDetailRepository.getLastUerMedicalDetailRecord();
-        if (lastuserMedicalDetailRecord == null){
+        var lastUserMedicalDetailRecord = userMedicalDetailRepository.getLastUerMedicalDetailRecord();
+        if (lastUserMedicalDetailRecord == null) {
             userMedicalDetail.setUserMedicalDetailId(1L);
-        }else {
-            userMedicalDetail.setUserMedicalDetailId(lastuserMedicalDetailRecord.getUserMedicalDetailId()+1);
+        } else {
+            userMedicalDetail.setUserMedicalDetailId(lastUserMedicalDetailRecord.getUserMedicalDetailId() + 1);
         }
         userMedicalDetail.setUserId(user.getUserId());
         userMedicalDetail.setMedicalConsultancyId(0);
@@ -194,9 +180,27 @@ public class LoginService implements ILoginService {
         userMedicalDetail.setReportId(0);
         userMedicalDetail.setCreatedBy(user.getUserId());
         userMedicalDetail.setCreatedOn(currentDate);
-        userMedicalDetailRepository.save(userMedicalDetail);
+        return userMedicalDetail;
+    }
 
-        return user;
+    @NotNull
+    private  Login getLogin(Timestamp currentDate, User user) {
+        Login loginDetail = new Login();
+        var lastLoginRecord = this.loginRepository.getLastLoginRecord();
+        if (lastLoginRecord == null) {
+            loginDetail.setLoginId(1L);
+        } else {
+            loginDetail.setLoginId(lastLoginRecord.getLoginId() + 1);
+        }
+        loginDetail.setUserId(user.getUserId());
+        loginDetail.setEmail(user.getEmail());
+        loginDetail.setPassword(ApplicationConstant.DefaultPassword);
+        loginDetail.setRoleId(0);
+        loginDetail.setActive(true);
+        loginDetail.setCreatedBy(user.getUserId());
+        loginDetail.setAccountConfig(false);
+        loginDetail.setCreatedOn(currentDate);
+        return loginDetail;
     }
 
     private LoginResponse getLoginResponse(User user, int roleId) throws IOException {
@@ -207,7 +211,7 @@ public class LoginService implements ILoginService {
         jwtTokenModel.setUserId(user.getUserId());
         jwtTokenModel.setEmail(user.getEmail());
         jwtTokenModel.setCompanyCode("HB-000");
-        switch (roleId){
+        switch (roleId) {
             case 1:
                 jwtTokenModel.setRole(ApplicationConstant.Admin);
                 break;
@@ -262,7 +266,7 @@ public class LoginService implements ILoginService {
         if (lastUserId == null)
             user.setUserId(1L);
         else
-            user.setUserId(lastUserId.getUserId()+1);
+            user.setUserId(lastUserId.getUserId() + 1);
 
         String[] splitStr = login.getFullName().split("\\s+");
         if (splitStr.length == 1)
@@ -287,10 +291,10 @@ public class LoginService implements ILoginService {
 
         Login loginDetail = new Login();
         var lastLoginRecord = this.loginRepository.getLastLoginRecord();
-        if (lastLoginRecord == null){
+        if (lastLoginRecord == null) {
             loginDetail.setLoginId(1L);
-        }else {
-            loginDetail.setLoginId(lastLoginRecord.getLoginId()+1);
+        } else {
+            loginDetail.setLoginId(lastLoginRecord.getLoginId() + 1);
         }
         loginDetail.setUserId(user.getUserId());
         loginDetail.setEmail(login.getEmail());
@@ -315,11 +319,11 @@ public class LoginService implements ILoginService {
         userDetailRepository.save(userDetail);
 
         UserMedicalDetail userMedicalDetail = new UserMedicalDetail();
-        var lastuserMedicalDetailRecord = userMedicalDetailRepository.getLastUerMedicalDetailRecord();
-        if (lastuserMedicalDetailRecord == null){
+        var lastUserMedicalDetailRecord = userMedicalDetailRepository.getLastUerMedicalDetailRecord();
+        if (lastUserMedicalDetailRecord == null) {
             userMedicalDetail.setUserMedicalDetailId(1L);
-        }else {
-            userMedicalDetail.setUserMedicalDetailId(lastuserMedicalDetailRecord.getUserMedicalDetailId()+1);
+        } else {
+            userMedicalDetail.setUserMedicalDetailId(lastUserMedicalDetailRecord.getUserMedicalDetailId() + 1);
         }
         userMedicalDetail.setUserId(user.getUserId());
         userMedicalDetail.setMedicalConsultancyId(0);
@@ -340,12 +344,11 @@ public class LoginService implements ILoginService {
         var currentDate = new Timestamp(utilDate.getTime());
 
         User user = new User();
-
         var lastUserId = userRepository.getLastUserId();
         if (lastUserId == null)
             user.setUserId(1L);
         else
-            user.setUserId(lastUserId.getUserId()+1);
+            user.setUserId(lastUserId.getUserId() + 1);
 
         String[] splitStr = login.getFullName().split("\\s+");
         if (splitStr.length == 1)
@@ -371,10 +374,10 @@ public class LoginService implements ILoginService {
 
         Login loginDetail = new Login();
         var lastLoginRecord = this.loginRepository.getLastLoginRecord();
-        if (lastLoginRecord == null){
+        if (lastLoginRecord == null) {
             loginDetail.setLoginId(1L);
-        }else {
-            loginDetail.setLoginId(lastLoginRecord.getLoginId()+1);
+        } else {
+            loginDetail.setLoginId(lastLoginRecord.getLoginId() + 1);
         }
         loginDetail.setUserId(user.getUserId());
         loginDetail.setEmail(login.getEmail());
