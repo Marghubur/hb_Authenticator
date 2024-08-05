@@ -35,7 +35,7 @@ public class JwtUtil {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(httpTransport, JacksonFactory.getDefaultInstance())
                     .setAudience(Collections.singletonList("622966386962-pcep2a9p2l0j75p1nrl5m7clhlln3eil.apps.googleusercontent.com"))
 //                    .setAudience(Collections.singletonList("532816585614-335gusa42uce2jedsg6hffvqr8kb630n.apps.googleusercontent.com"))
-                .build();
+                    .build();
 
             // Verify it
             GoogleIdToken idToken = verifier.verify(token);
@@ -52,23 +52,22 @@ public class JwtUtil {
 
         return userDetails;
     }
-    public Map<String, Object> ValidateGoogleAuthToken(String accessToken){
+
+    public Map<String, Object> ValidateGoogleAuthToken(String accessToken) {
         final String TOKEN_INFO_URL = "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=";
         Map<String, Object> userDetails = new HashMap<>();
         Map<String, Object> claims = null;
         try {
             String url = TOKEN_INFO_URL + accessToken;
             try (var httpClient = HttpClients.createDefault()) {
-            var request = new HttpGet(url);
+                var request = new HttpGet(url);
                 try (var response = httpClient.execute(request)) {
-                    if (response.getCode() == 200 ){
+                    if (response.getCode() == 200) {
                         var jsonResponse = EntityUtils.toString(response.getEntity());
                         var jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
                         String _clientId = jsonObject.get("audience").getAsString();
-                        if (Objects.equals(_clientId, "532816585614-335gusa42uce2jedsg6hffvqr8kb630n.apps.googleusercontent.com")){
-                            String email = jsonObject.get("email").getAsString();
-                            userDetails.put("email", email);
-                        }
+                        String email = jsonObject.get("email").getAsString();
+                        userDetails.put("email", email);
                     }
                 }
             }

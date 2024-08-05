@@ -206,7 +206,7 @@ public class LoginService implements ILoginService {
         jwtTokenModel.setUserDetail(userDetailJson);
         jwtTokenModel.setUserId(user.getUserId());
         jwtTokenModel.setEmail(user.getEmail());
-        jwtTokenModel.setCompanyCode("");
+        jwtTokenModel.setCompanyCode("HB-000");
         switch (roleId){
             case 1:
                 jwtTokenModel.setRole(ApplicationConstant.Admin);
