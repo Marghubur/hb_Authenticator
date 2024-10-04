@@ -62,6 +62,8 @@ public class User {
 
     String friends;
 
+    String requests;
+
     Long createdBy;
 
     Long updatedBy;
