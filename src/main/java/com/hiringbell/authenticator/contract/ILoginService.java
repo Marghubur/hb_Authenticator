@@ -11,6 +11,6 @@ public interface ILoginService {
     LoginResponse authenticateUserService(Login login) throws Exception;
     public LoginResponse signupService(Login login) throws Exception;
     public LoginResponse shortSignupService(Login login) throws Exception;
-
+    LoginResponse autoAuthentication(User user) throws Exception;
     LoginResponse userAutheticationMobile(User user) throws Exception;
 }

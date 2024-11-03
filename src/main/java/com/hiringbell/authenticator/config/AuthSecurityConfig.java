@@ -1,3 +1,4 @@
+/*
 package com.hiringbell.authenticator.config;
 
 import org.springframework.context.annotation.Bean;
@@ -16,4 +17,4 @@ public class AuthSecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .build();
     }
-}
+}*/

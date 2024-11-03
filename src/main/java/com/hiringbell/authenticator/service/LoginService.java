@@ -5,11 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hiringbell.authenticator.contract.ILoginService;
 import com.hiringbell.authenticator.db.LowLevelExecution;
 import com.hiringbell.authenticator.entity.*;
+import com.hiringbell.authenticator.entity.User;
 import com.hiringbell.authenticator.jwtconfig.JwtGateway;
-import com.hiringbell.authenticator.model.ApplicationConstant;
-import com.hiringbell.authenticator.model.DbParameters;
-import com.hiringbell.authenticator.model.JwtTokenModel;
-import com.hiringbell.authenticator.model.LoginResponse;
+import com.hiringbell.authenticator.model.*;
 import com.hiringbell.authenticator.repository.UserDetailRepository;
 import com.hiringbell.authenticator.repository.UserMedicalDetailRepository;
 import com.hiringbell.authenticator.repository.UserRepository;
@@ -30,23 +28,20 @@ import java.util.*;
 public class LoginService implements ILoginService {
     @Autowired
     JwtUtil jwtUtil;
-
     @Autowired
     LoginRepository loginRepository;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     UserDetailRepository userDetailRepository;
-
     @Autowired
     UserMedicalDetailRepository userMedicalDetailRepository;
-
     @Autowired
     LowLevelExecution lowLevelExecution;
     @Autowired
     ObjectMapper objectMapper;
+    @Autowired
+    CurrentSession currentSession;
 
     public LoginResponse userAuthetication(User user) throws Exception {
         Map<String, Object> result = jwtUtil.validateToken(user.getToken());
@@ -56,6 +51,27 @@ public class LoginService implements ILoginService {
     public LoginResponse userAutheticationMobile(User user) throws Exception {
         Map<String, Object> result = jwtUtil.ValidateGoogleAuthToken(user.getToken());
         return userAuthenticateByEmail(user, result);
+    }
+
+    public LoginResponse autoAuthentication(User user) throws Exception {
+        if (currentSession.getUser().getEmail().equals(user.getEmail()) && currentSession.getUser().getUserId() > 0) {
+            var data = getgUserByEmailOrMobile(user.getEmail(), "");
+            User userdetail = null;
+            var isAccountConfig = false;
+            if (data == null || data.get("LoginDetail") == null) {
+                userdetail = addUserService(user);
+                isAccountConfig = false;
+            } else {
+                userdetail = (User) data.get("UserDetail");
+                Login loginDetail = (Login) data.get("LoginDetail");
+                isAccountConfig = loginDetail.isAccountConfig();
+            }
+            var loginResponse = getLoginResponse(userdetail, 0);
+            loginResponse.setAccountConfig(isAccountConfig);
+            return loginResponse;
+        } else {
+            throw new Exception("Invalid email used");
+        }
     }
 
     private @NotNull LoginResponse userAuthenticateByEmail(User user, Map<String, Object> result) throws Exception {
@@ -184,7 +200,7 @@ public class LoginService implements ILoginService {
     }
 
     @NotNull
-    private  Login getLogin(Timestamp currentDate, User user) {
+    private Login getLogin(Timestamp currentDate, User user) {
         Login loginDetail = new Login();
         var lastLoginRecord = this.loginRepository.getLastLoginRecord();
         if (lastLoginRecord == null) {

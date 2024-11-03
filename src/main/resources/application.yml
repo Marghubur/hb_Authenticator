@@ -10,9 +10,9 @@ spring:
   cloud:
     config:
       enabled: false
-
-  main:
-    web-application-type: reactive
+#
+#  main:
+#    web-application-type: reactive
 
   jpa:
     properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
