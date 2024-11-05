@@ -84,4 +84,6 @@ public class User {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     Date tokenExpiryDuration;
 
+    String subscriber;
+
 }
