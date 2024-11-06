@@ -4,16 +4,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hiringbell.authenticator.contract.ILoginService;
 import com.hiringbell.authenticator.db.LowLevelExecution;
-import com.hiringbell.authenticator.entity.*;
+import com.hiringbell.authenticator.entity.Login;
 import com.hiringbell.authenticator.entity.User;
+import com.hiringbell.authenticator.entity.UserDetail;
+import com.hiringbell.authenticator.entity.UserMedicalDetail;
 import com.hiringbell.authenticator.jwtconfig.JwtGateway;
 import com.hiringbell.authenticator.model.*;
+import com.hiringbell.authenticator.repository.LoginRepository;
 import com.hiringbell.authenticator.repository.UserDetailRepository;
 import com.hiringbell.authenticator.repository.UserMedicalDetailRepository;
 import com.hiringbell.authenticator.repository.UserRepository;
-import com.hiringbell.authenticator.repository.LoginRepository;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -157,6 +158,7 @@ public class LoginService implements ILoginService {
         user.setJobCategoryId(0);
         user.setCategoryTypeIds("[]");
         user.setJobLocationIds("[]");
+        user.setSubscriber("[]");
         user.setCreatedOn(currentDate);
         userRepository.save(user);
 
@@ -216,6 +218,7 @@ public class LoginService implements ILoginService {
         loginDetail.setCreatedBy(user.getUserId());
         loginDetail.setAccountConfig(false);
         loginDetail.setCreatedOn(currentDate);
+        loginDetail.setDeviceId("");
         return loginDetail;
     }
 
@@ -300,6 +303,7 @@ public class LoginService implements ILoginService {
         user.setFriends("[]");
         user.setFollowers("[]");
         user.setJobCategoryId(0);
+        user.setSubscriber("[]");
         user.setCategoryTypeIds("[]");
         user.setJobLocationIds("[]");
         user.setCreatedOn(currentDate);
@@ -321,6 +325,7 @@ public class LoginService implements ILoginService {
         loginDetail.setCreatedBy(user.getUserId());
         loginDetail.setCreatedOn(currentDate);
         loginDetail.setAccountConfig(false);
+        loginDetail.setDeviceId("");
         this.loginRepository.save(loginDetail);
 
         UserDetail userDetail = new UserDetail();
@@ -376,6 +381,7 @@ public class LoginService implements ILoginService {
         user.setEmail(login.getEmail());
         user.setMobile(login.getMobile());
         user.setGender(login.getGender());
+        user.setSubscriber("[]");
         user.setRoleId(0);
         user.setDesignationId(0);
         user.setReporteeId(0);
@@ -399,6 +405,7 @@ public class LoginService implements ILoginService {
         loginDetail.setEmail(login.getEmail());
         loginDetail.setPassword(login.getPassword());
         loginDetail.setRoleId(0);
+        loginDetail.setDeviceId("");
         loginDetail.setActive(true);
         loginDetail.setCreatedBy(user.getUserId());
         loginDetail.setCreatedOn(currentDate);
