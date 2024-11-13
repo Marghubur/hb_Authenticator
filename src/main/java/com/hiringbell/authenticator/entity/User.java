@@ -86,4 +86,7 @@ public class User {
 
     String subscriber;
 
+    @Transient
+    String deviceId;
+
 }

@@ -51,6 +51,9 @@ public class LoginService implements ILoginService {
 
     public LoginResponse userAutheticationMobile(User user) throws Exception {
         Map<String, Object> result = jwtUtil.ValidateGoogleAuthToken(user.getToken());
+        if (user.getDeviceId() == null || user.getDeviceId().isEmpty())
+            throw new Exception("Device id not found");
+
         return userAuthenticateByEmail(user, result);
     }
 
@@ -89,6 +92,9 @@ public class LoginService implements ILoginService {
             userdetail = (User) data.get("UserDetail");
             Login loginDetail = (Login) data.get("LoginDetail");
             isAccountConfig = loginDetail.isAccountConfig();
+
+            loginDetail.setDeviceId(user.getDeviceId());
+            loginRepository.save(loginDetail);
         }
         var loginResponse = getLoginResponse(userdetail, 0);
         loginResponse.setAccountConfig(isAccountConfig);
@@ -105,6 +111,9 @@ public class LoginService implements ILoginService {
             Login loginDetail = (Login) data.get("LoginDetail");
             if (loginDetail == null)
                 throw new Exception("Login detail not found");
+
+            loginDetail.setDeviceId(login.getDeviceId());
+            loginRepository.save(loginDetail);
 
             validateCredential(loginDetail, login);
             User user = (User) data.get("UserDetail");
@@ -218,7 +227,7 @@ public class LoginService implements ILoginService {
         loginDetail.setCreatedBy(user.getUserId());
         loginDetail.setAccountConfig(false);
         loginDetail.setCreatedOn(currentDate);
-        loginDetail.setDeviceId("");
+        loginDetail.setDeviceId(user.getDeviceId());
         return loginDetail;
     }
 
@@ -229,6 +238,8 @@ public class LoginService implements ILoginService {
         jwtTokenModel.setUserDetail(userDetailJson);
         jwtTokenModel.setUserId(user.getUserId());
         jwtTokenModel.setEmail(user.getEmail());
+        jwtTokenModel.setFirstName(user.getFirstName());
+        jwtTokenModel.setLastName(user.getLastName());
         jwtTokenModel.setCompanyCode("HB-000");
         switch (roleId) {
             case 1:
@@ -325,7 +336,7 @@ public class LoginService implements ILoginService {
         loginDetail.setCreatedBy(user.getUserId());
         loginDetail.setCreatedOn(currentDate);
         loginDetail.setAccountConfig(false);
-        loginDetail.setDeviceId("");
+        loginDetail.setDeviceId(user.getDeviceId());
         this.loginRepository.save(loginDetail);
 
         UserDetail userDetail = new UserDetail();
@@ -405,7 +416,7 @@ public class LoginService implements ILoginService {
         loginDetail.setEmail(login.getEmail());
         loginDetail.setPassword(login.getPassword());
         loginDetail.setRoleId(0);
-        loginDetail.setDeviceId("");
+        loginDetail.setDeviceId(user.getDeviceId());
         loginDetail.setActive(true);
         loginDetail.setCreatedBy(user.getUserId());
         loginDetail.setCreatedOn(currentDate);
