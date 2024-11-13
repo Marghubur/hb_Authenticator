@@ -24,4 +24,10 @@ public class JwtTokenModel {
 
     @JsonProperty("Role")
     String role;
+
+    @JsonProperty("FirstName")
+    String firstName;
+
+    @JsonProperty("LastName")
+    String lastName;
 }
