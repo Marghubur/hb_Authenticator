@@ -4,7 +4,6 @@ import com.hiringbell.authenticator.contract.ILoginService;
 import com.hiringbell.authenticator.entity.Login;
 import com.hiringbell.authenticator.entity.User;
 import com.hiringbell.authenticator.model.ApiResponse;
-import com.hiringbell.authenticator.model.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,7 @@ public class LoginController {
 
     @PostMapping("/googlelogin")
     public ResponseEntity<ApiResponse> registerWithGoogle(@RequestBody User user) throws Exception {
-        var result = loginService.userAuthetication(user);
+        var result = loginService.userAuthentication(user);
         return ResponseEntity.ok(ApiResponse.Ok(result));
     }
 
@@ -30,7 +29,7 @@ public class LoginController {
 
     @PostMapping("/googlemobilelogin")
     public ResponseEntity<ApiResponse> registerWithGoogleMobile(@RequestBody User user) throws Exception {
-        var result = loginService.userAutheticationMobile(user);
+        var result = loginService.userAuthenticationMobile(user);
         return ResponseEntity.ok(ApiResponse.Ok(result));
     }
 

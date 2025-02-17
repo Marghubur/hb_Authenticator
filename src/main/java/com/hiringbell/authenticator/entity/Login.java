@@ -70,6 +70,7 @@ public class Login {
     @JsonProperty("gender")
     String gender;
 
+    @Column(name = "deviceId")
     @JsonProperty("deviceId")
     String deviceId;
 }

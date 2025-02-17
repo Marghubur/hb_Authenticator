@@ -44,38 +44,17 @@ public class LoginService implements ILoginService {
     @Autowired
     CurrentSession currentSession;
 
-    public LoginResponse userAuthetication(User user) throws Exception {
+    public LoginResponse userAuthentication(User user) throws Exception {
         Map<String, Object> result = jwtUtil.validateToken(user.getToken());
         return userAuthenticateByEmail(user, result);
     }
 
-    public LoginResponse userAutheticationMobile(User user) throws Exception {
+    public LoginResponse userAuthenticationMobile(User user) throws Exception {
         Map<String, Object> result = jwtUtil.ValidateGoogleAuthToken(user.getToken());
         if (user.getDeviceId() == null || user.getDeviceId().isEmpty())
             throw new Exception("Device id not found");
 
         return userAuthenticateByEmail(user, result);
-    }
-
-    public LoginResponse autoAuthentication(User user) throws Exception {
-        if (currentSession.getUser().getEmail().equals(user.getEmail()) && currentSession.getUser().getUserId() > 0) {
-            var data = getgUserByEmailOrMobile(user.getEmail(), "");
-            User userdetail = null;
-            var isAccountConfig = false;
-            if (data == null || data.get("LoginDetail") == null) {
-                userdetail = addUserService(user);
-                isAccountConfig = false;
-            } else {
-                userdetail = (User) data.get("UserDetail");
-                Login loginDetail = (Login) data.get("LoginDetail");
-                isAccountConfig = loginDetail.isAccountConfig();
-            }
-            var loginResponse = getLoginResponse(userdetail, 0);
-            loginResponse.setAccountConfig(isAccountConfig);
-            return loginResponse;
-        } else {
-            throw new Exception("Invalid email used");
-        }
     }
 
     private @NotNull LoginResponse userAuthenticateByEmail(User user, Map<String, Object> result) throws Exception {
@@ -122,6 +101,22 @@ public class LoginService implements ILoginService {
             return loginResponse;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
+        }
+    }
+
+    public LoginResponse autoAuthentication(Login login) throws Exception {
+        if (currentSession.getUser().getEmail().equals(login.getEmail()) && currentSession.getUser().getUserId() > 0) {
+            var data = getgUserByEmailOrMobile(currentSession.getUser().getEmail(), currentSession.getUser().getMobile());
+            if (data == null || data.get("LoginDetail") == null)
+                throw new Exception("Login detail not found");
+
+            Login loginDetail = (Login) data.get("LoginDetail");
+            User presentUser = (User) data.get("UserDetail");
+            var loginResponse = getLoginResponse(presentUser, loginDetail.getRoleId());
+            loginResponse.setAccountConfig(loginDetail.isAccountConfig());
+            return loginResponse;
+        } else {
+            throw new Exception("Invalid email used");
         }
     }
 

@@ -2,9 +2,9 @@ package com.hiringbell.authenticator.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hiringbell.authenticator.config.RouteValidator;
+import com.hiringbell.authenticator.entity.User;
 import com.hiringbell.authenticator.model.CurrentSession;
 import com.hiringbell.authenticator.model.JwtTokenModel;
-import com.hiringbell.authenticator.model.User;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -42,12 +42,13 @@ public class RequestFilter implements Filter {
                     throw new Exception("Invalid token found. Please contact to admin.");
                 }
 
-                var jwtTokenModel = objectMapper.readValue(headerUserDetail.toString(), JwtTokenModel.class);
-                if (jwtTokenModel == null)
-                    throw new Exception("Invalid token found. Please contact to admin.");
-
-                var user = objectMapper.readValue(jwtTokenModel.getUserDetail(), User.class);
-                currentSession.setUser(user);
+                var user = objectMapper.readValue(headerUserDetail.toString(), User.class);
+                currentSession.setUser(new com.hiringbell.authenticator.model.User(
+                        user.getUserId(),
+                        user.getMobile(),
+                        user.getEmail(),
+                        user.getFirstName().concat(" " + user.getLastName()))
+                );
             }
 
         } catch (Exception ex) {

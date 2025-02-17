@@ -33,7 +33,7 @@ public class JwtGateway {
         String tokenResult = null;
         try {
             // Specify the URL you want to send the POST request to
-            URL url = new URL("https://www.bottomhalf.in/api/tokenmanager/generatetoken");
+            URL url = new URL("https://www.bottomhalf.in/bt/s3/TokenManager/generateToken");
             // URL url = new URL("http://localhost:5900/api/tokenmanager/generatetoken");
             // Open a connection to the URL
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
