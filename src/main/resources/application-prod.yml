@@ -7,7 +7,7 @@ spring:
     web-application-type: reactive
   #Local-server(Remote)
   datasource:
-    url: jdbc:mysql://145.223.22.73:30002/hiringbell
+    url: jdbc:mysql://145.223.22.73:30002/hiringbell_dev
     username: root
     password: live@Bottomhalf_001
     driver-class-name: com.mysql.cj.jdbc.Driver
