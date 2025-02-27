@@ -10,7 +10,7 @@ RUN mvn package
 
 FROM openjdk:17-oracle
 WORKDIR /app
-EXPOSE 80
+EXPOSE 8102
 
 COPY --from=MAVEN /build/target/hiringbell_authservice.jar /app/
 COPY src/main/resources /app/resources
