@@ -91,8 +91,10 @@ public class LoginService implements ILoginService {
             if (loginDetail == null)
                 throw new Exception("Login detail not found");
 
-            loginDetail.setDeviceId(login.getDeviceId());
-            loginRepository.save(loginDetail);
+            if (login.getDeviceId() == null || !login.getDeviceId().equals(loginDetail.getDeviceId())) {
+                loginDetail.setDeviceId(login.getDeviceId());
+                loginRepository.save(loginDetail);
+            }
 
             validateCredential(loginDetail, login);
             User user = (User) data.get("UserDetail");
@@ -275,6 +277,9 @@ public class LoginService implements ILoginService {
     private void validateLoginDetail(Login login) throws Exception {
         if (login.getPassword() == null || login.getPassword().isEmpty())
             throw new Exception("Password is required");
+
+        if (login.getDeviceId() == null || login.getDeviceId().isEmpty())
+            throw new Exception("Device not supported.");
 
         if ((login.getEmail() == null || login.getEmail().isEmpty()) && (login.getMobile() == null || login.getMobile().isEmpty()))
             throw new Exception("Email or Mobile number is required");
